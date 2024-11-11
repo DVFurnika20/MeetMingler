@@ -1,0 +1,28 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MeetMingler.DAL", "MeetMingler.DAL\MeetMingler.DAL.csproj", "{C89478CC-8D5F-4D2F-8D25-5F4EA879EF53}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MeetMingler.BLL", "MeetMingler.BLL\MeetMingler.BLL.csproj", "{5AC41799-DAB4-41DD-9BF9-9340C9D69F30}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MeetMingler.PL", "MeetMingler.PL\MeetMingler.PL.csproj", "{A2194D9F-008E-460A-87EA-408551381331}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{C89478CC-8D5F-4D2F-8D25-5F4EA879EF53}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C89478CC-8D5F-4D2F-8D25-5F4EA879EF53}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C89478CC-8D5F-4D2F-8D25-5F4EA879EF53}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C89478CC-8D5F-4D2F-8D25-5F4EA879EF53}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5AC41799-DAB4-41DD-9BF9-9340C9D69F30}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5AC41799-DAB4-41DD-9BF9-9340C9D69F30}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5AC41799-DAB4-41DD-9BF9-9340C9D69F30}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5AC41799-DAB4-41DD-9BF9-9340C9D69F30}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A2194D9F-008E-460A-87EA-408551381331}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A2194D9F-008E-460A-87EA-408551381331}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A2194D9F-008E-460A-87EA-408551381331}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A2194D9F-008E-460A-87EA-408551381331}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal
