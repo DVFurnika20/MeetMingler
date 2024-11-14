@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("MeetMingler.BLL")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+7a5077acaa47ee151896a76111e869f288bbb61e")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+5d0b6e6d995abaca493cd3b7964d3264e16cb53e")]
 [assembly: System.Reflection.AssemblyProductAttribute("MeetMingler.BLL")]
 [assembly: System.Reflection.AssemblyTitleAttribute("MeetMingler.BLL")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

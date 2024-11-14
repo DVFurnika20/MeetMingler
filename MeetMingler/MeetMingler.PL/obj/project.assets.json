@@ -1213,6 +1213,10 @@
       "MeetMingler.DAL/1.0.0": {
         "type": "project",
         "framework": ".NETCoreApp,Version=v8.0",
+        "dependencies": {
+          "Microsoft.AspNetCore.Diagnostics.EntityFrameworkCore": "8.0.8",
+          "Microsoft.AspNetCore.Identity.EntityFrameworkCore": "8.0.8"
+        },
         "compile": {
           "bin/placeholder/MeetMingler.DAL.dll": {}
         },
@@ -3095,6 +3099,11 @@
         "warnAsError": [
           "NU1605"
         ]
+      },
+      "restoreAuditProperties": {
+        "enableAudit": "true",
+        "auditLevel": "low",
+        "auditMode": "direct"
       }
     },
     "frameworks": {
