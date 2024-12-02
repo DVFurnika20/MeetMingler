@@ -6,7 +6,7 @@ namespace MeetMingler.DAL.Models;
 public class Event
 {
     [Key] public Guid Id { get; set; } = Guid.NewGuid();
-    
+
     public Guid CreatorId { get; set; }
 
     [Required] [MaxLength(100)] public string Title { get; set; } = null!;

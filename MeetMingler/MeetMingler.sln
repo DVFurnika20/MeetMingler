@@ -4,7 +4,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MeetMingler.DAL", "MeetMing
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MeetMingler.BLL", "MeetMingler.BLL\MeetMingler.BLL.csproj", "{5AC41799-DAB4-41DD-9BF9-9340C9D69F30}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MeetMingler.PL", "MeetMingler.PL\MeetMingler.PL.csproj", "{A2194D9F-008E-460A-87EA-408551381331}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MeetMingler.WebHost", "MeetMingler.WebHost\MeetMingler.WebHost.csproj", "{8F4304FD-1797-4B7D-85D7-DECFC4DC8C23}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -20,9 +20,9 @@ Global
 		{5AC41799-DAB4-41DD-9BF9-9340C9D69F30}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{5AC41799-DAB4-41DD-9BF9-9340C9D69F30}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{5AC41799-DAB4-41DD-9BF9-9340C9D69F30}.Release|Any CPU.Build.0 = Release|Any CPU
-		{A2194D9F-008E-460A-87EA-408551381331}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{A2194D9F-008E-460A-87EA-408551381331}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{A2194D9F-008E-460A-87EA-408551381331}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{A2194D9F-008E-460A-87EA-408551381331}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8F4304FD-1797-4B7D-85D7-DECFC4DC8C23}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8F4304FD-1797-4B7D-85D7-DECFC4DC8C23}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8F4304FD-1797-4B7D-85D7-DECFC4DC8C23}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8F4304FD-1797-4B7D-85D7-DECFC4DC8C23}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
