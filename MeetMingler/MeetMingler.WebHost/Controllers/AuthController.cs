@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace MeetMingler.WebHost.Controllers;
 
 [Route("api/[controller]/[action]")]
+[ApiController]
 public class AuthController(
     IUserService userService,
     IAuthService authService,
