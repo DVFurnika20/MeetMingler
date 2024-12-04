@@ -1,4 +1,5 @@
 using MeetMingler.DAL.Data;
+using MeetMingler.DAL.Models;
 using MeetMingler.WebHost;
 using Microsoft.EntityFrameworkCore;
 
@@ -9,7 +10,9 @@ var builder = WebApplication.CreateBuilder(args);
 builder.AddLogging();
 builder.AddSwagger();
 builder.AddDbContext();
+builder.AddIdentity();
 builder.AddCors();
+builder.AddAutoMapper();
 builder.AddServices();
 
 var app = builder.Build();
@@ -39,6 +42,7 @@ if (app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 app.UseCors();
 
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
