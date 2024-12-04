@@ -8,4 +8,6 @@ public class User : IdentityUser<Guid>
     [MaxLength(100)] [Required] public string FirstName { get; set; } = null!;
 
     [MaxLength(100)] [Required] public string LastName { get; set; } = null!;
+    
+    // TODO: Add user UTC offset
 }
