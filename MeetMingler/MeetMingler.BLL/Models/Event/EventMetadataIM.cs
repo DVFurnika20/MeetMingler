@@ -2,7 +2,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace MeetMingler.BLL.Models.Event;
 
-public class EventMetadata
+public class EventMetadataIM
 {
     [Required] public string Key { get; set; } = null!;
 

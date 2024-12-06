@@ -13,6 +13,4 @@ public class EventBase
     [Required] public DateTime EndTime { get; set; }
     
     [Required] public bool Cancelled { get; set; }
-    
-    [Required] public List<EventMetadata> Metadata { get; set; } = [];
 }

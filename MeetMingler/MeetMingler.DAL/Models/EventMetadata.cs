@@ -1,8 +1,10 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using Microsoft.EntityFrameworkCore;
 
 namespace MeetMingler.DAL.Models;
 
+[Index(nameof(EventId), nameof(Key))]
 public class EventMetadata
 {
     [Key] public Guid Id { get; set; } = Guid.NewGuid();

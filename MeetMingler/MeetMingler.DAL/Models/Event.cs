@@ -23,4 +23,6 @@ public class Event
     public virtual User Creator { get; set; } = null!;
 
     public virtual ICollection<EventParticipant> Participants { get; set; } = null!;
+    
+    public virtual ICollection<EventMetadata> Metadata { get; set; } = null!;
 }
