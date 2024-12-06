@@ -1,6 +1,7 @@
 using MeetMingler.BLL.Models.Event;
 using MeetMingler.BLL.Services.Contracts;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace MeetMingler.WebHost.Controllers;
 
@@ -10,25 +11,38 @@ public class EventController(IAuthService authService, ICurrentUser currentUser,
     : BaseController(authService, currentUser)
 {
     [HttpPost]
-    public Task<ActionResult<EventVM>> Create()
+    public async Task<ActionResult<EventVM>> Create([FromBody] EventIM eventIm)
     {
-        throw new NotImplementedException();
+        var result = await eventService.CreateAsync(eventIm);
+        if (result == null)
+        {
+            return BadRequest("Event creation failed.");
+        }
+        return Ok(result);
     }
-
+    
     [HttpGet("{id:guid}")]
-    public Task<ActionResult<EventVM>> GetById([FromRoute] Guid id)
+    public async Task<ActionResult<EventVM>> GetById([FromRoute] Guid id)
     {
-        throw new NotImplementedException();
+        var result = await eventService.GetByIdAsync(id);
+        if (result == null)
+        {
+            return NotFound();
+        }
+        return Ok(result);
     }
-
+    
     [HttpGet("{creatorId:guid}")]
-    public Task<ActionResult<IEnumerable<EventVM>>> GetByCreator([FromRoute] Guid creatorId)
+    public async Task<ActionResult<IEnumerable<EventVM>>> GetByCreator([FromRoute] Guid creatorId, [FromQuery] List<string> includeMetadataKeys)
     {
-        throw new NotImplementedException();
+        var result = await eventService.GetCollectionByCreatorAsync(creatorId, includeMetadataKeys);
+        return Ok(result);
     }
-
-    public Task<ActionResult<IEnumerable<string>>> GetDistinctMetadataValues()
+    
+    [HttpGet("{metadataKey}")]
+    public async Task<ActionResult<IEnumerable<string>>> GetDistinctMetadataValues([FromRoute] string metadataKey)
     {
-        throw new NotImplementedException();
+        var result = await eventService.GetDistinctMetadataValuesAsync(metadataKey).ToListAsync();
+        return Ok(result);
     }
 }
