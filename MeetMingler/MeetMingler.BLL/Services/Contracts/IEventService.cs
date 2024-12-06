@@ -13,7 +13,7 @@ public interface IEventService : IGenericCreateService<EventVM, EventIM>,
     /// <param name="id">The event's unique identifier</param>
     /// <param name="cf">Cancellation token</param>
     /// <returns>The view model of an event</returns>
-    Task<EventVM?> GetEventByIdAsync(Guid id, CancellationToken cf = default);
+    Task<EventVM?> GetByIdAsync(Guid id, CancellationToken cf = default);
  
     /// <summary>
     /// Retrieve all events created by a user
@@ -22,7 +22,7 @@ public interface IEventService : IGenericCreateService<EventVM, EventIM>,
     /// <param name="includeMetadataKeys">The metadata key/value pairs to include in the resultset</param>
     /// <param name="cf">Cancellation token</param>
     /// <returns>A collection of events</returns>
-    Task<IEnumerable<EventVM>> GetEventsByCreatorIdAsync(Guid creatorId, List<string> includeMetadataKeys, CancellationToken cf = default);
+    Task<IEnumerable<EventVM>> GetCollectionByCreatorAsync(Guid creatorId, List<string> includeMetadataKeys, CancellationToken cf = default);
 
     /// <summary>
     /// Retrieve all distinct metadata values for a given metadata key
@@ -30,10 +30,21 @@ public interface IEventService : IGenericCreateService<EventVM, EventIM>,
     /// <param name="metadataKey">Metadata key</param>
     /// <param name="cf">Cancellation token</param>
     /// <returns>A collection of values related to the metadata key</returns>
-    IQueryable<string> GetDistinctMetadataValues(string metadataKey, CancellationToken cf = default);
+    IQueryable<string> GetDistinctMetadataValuesAsync(string metadataKey, CancellationToken cf = default);
  
     // TODO: add methods for updating single event
+
     // TODO: add methods for cancelling/reinstating event
-    // TODO: add methods for updating adding/updating/deleting event metadata
+    // TODO: add methods for adding/updating/deleting event metadata
     // TODO: add methods for deleting single event
+    
+    Task SetCancelledAsync(Guid id, bool cancelled, CancellationToken cf = default);
+    
+    // insert if no key is present for event
+    // update if key is present for event
+    Task<EventVM?> AddMetadataAsync(Guid eventId, EventMetadataIM metadata, CancellationToken cf = default);
+    
+    Task<EventVM?> DeleteMetadataAsync(Guid eventId, string key, CancellationToken cf = default);
+
+    Task DeleteAsync(Guid eventId, CancellationToken cf = default);
 }

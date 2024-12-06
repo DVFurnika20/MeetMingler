@@ -31,7 +31,7 @@ public class EventService(IMapper mapper, ApplicationDbContext context) : IEvent
         return mappedEvent;
     }
 
-    public async Task<EventVM?> GetEventByIdAsync(Guid id, CancellationToken cf = default)
+    public async Task<EventVM?> GetByIdAsync(Guid id, CancellationToken cf = default)
     {
         var eventEntity = await context.Events
             .AsNoTracking()
@@ -49,7 +49,7 @@ public class EventService(IMapper mapper, ApplicationDbContext context) : IEvent
         return mappedEvent;
     }
 
-    public async Task<IEnumerable<EventVM>> GetEventsByCreatorIdAsync(Guid creatorId, List<string> includeMetadataKeys,
+    public async Task<IEnumerable<EventVM>> GetCollectionByCreatorAsync(Guid creatorId, List<string> includeMetadataKeys,
         CancellationToken cf = default)
     {
         var query = await context.Events.AsNoTracking()
@@ -74,7 +74,7 @@ public class EventService(IMapper mapper, ApplicationDbContext context) : IEvent
         });
     }
 
-    public IQueryable<string> GetDistinctMetadataValues(string metadataKey,
+    public IQueryable<string> GetDistinctMetadataValuesAsync(string metadataKey,
         CancellationToken cf = default)
     {
         return context.EventMetadataEntries
@@ -131,5 +131,25 @@ public class EventService(IMapper mapper, ApplicationDbContext context) : IEvent
             Items = result,
             Count = count
         };
+    }
+
+    public Task DeleteAsync(Guid eventId, CancellationToken cf = default)
+    {
+        throw new NotImplementedException();
+    }
+
+    public Task<EventVM?> AddMetadataAsync(Guid eventId, EventMetadataIM metadata, CancellationToken cf = default)
+    {
+        throw new NotImplementedException();
+    }
+
+    public Task<EventVM?> DeleteMetadataAsync(Guid eventId, string key, CancellationToken cf = default)
+    {
+        throw new NotImplementedException();
+    }
+
+    public Task SetCancelledAsync(Guid id, bool cancelled, CancellationToken cf = default)
+    {
+        throw new NotImplementedException();
     }
 }
