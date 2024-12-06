@@ -13,7 +13,7 @@ public interface IEventService : IGenericCreateService<EventVM, EventIM>,
     /// <param name="id">The event's unique identifier</param>
     /// <param name="cf">Cancellation token</param>
     /// <returns>The view model of an event</returns>
-    Task<EventVM> GetEventByIdAsync(Guid id, CancellationToken cf = default);
+    Task<EventVM?> GetEventByIdAsync(Guid id, CancellationToken cf = default);
  
     /// <summary>
     /// Retrieve all events created by a user
@@ -22,15 +22,15 @@ public interface IEventService : IGenericCreateService<EventVM, EventIM>,
     /// <param name="includeMetadataKeys">The metadata key/value pairs to include in the resultset</param>
     /// <param name="cf">Cancellation token</param>
     /// <returns>A collection of events</returns>
-    Task<IQueryable<EventVM>> GetEventsByCreatorIdAsync(Guid creatorId, List<string> includeMetadataKeys, CancellationToken cf = default);
- 
+    Task<IEnumerable<EventVM>> GetEventsByCreatorIdAsync(Guid creatorId, List<string> includeMetadataKeys, CancellationToken cf = default);
+
     /// <summary>
     /// Retrieve all distinct metadata values for a given metadata key
     /// </summary>
     /// <param name="metadataKey">Metadata key</param>
     /// <param name="cf">Cancellation token</param>
     /// <returns>A collection of values related to the metadata key</returns>
-    Task<IQueryable<string>> GetDistinctMetadataValuesAsync(string metadataKey, CancellationToken cf = default);
+    IQueryable<string> GetDistinctMetadataValues(string metadataKey, CancellationToken cf = default);
  
     // TODO: add methods for updating single event
     // TODO: add methods for cancelling/reinstating event
