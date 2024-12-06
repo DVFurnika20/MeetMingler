@@ -38,13 +38,40 @@ public interface IEventService : IGenericCreateService<EventVM, EventIM>,
     // TODO: add methods for adding/updating/deleting event metadata
     // TODO: add methods for deleting single event
     
+    /// <summary>
+    /// Set the cancellation status of an event.
+    /// </summary>
+    /// <param name="id">The event's unique identifier</param>
+    /// <param name="cancelled">Cancellation status</param>
+    /// <param name="cf">Cancellation token</param>
+    /// <returns>A task representing the asynchronous operation</returns>
     Task SetCancelledAsync(Guid id, bool cancelled, CancellationToken cf = default);
     
     // insert if no key is present for event
     // update if key is present for event
+    /// <summary>
+    /// Add or update metadata for an event.
+    /// </summary>
+    /// <param name="eventId">The event's unique identifier</param>
+    /// <param name="metadata">The metadata input model</param>
+    /// <param name="cf">Cancellation token</param>
+    /// <returns>The updated event view model</returns>
     Task<EventVM?> AddMetadataAsync(Guid eventId, EventMetadataIM metadata, CancellationToken cf = default);
     
+    /// <summary>
+    /// Delete metadata for an event.
+    /// </summary>
+    /// <param name="eventId">The event's unique identifier</param>
+    /// <param name="key">The metadata key</param>
+    /// <param name="cf">Cancellation token</param>
+    /// <returns>The updated event view model</returns>
     Task<EventVM?> DeleteMetadataAsync(Guid eventId, string key, CancellationToken cf = default);
-
+    
+    /// <summary>
+    /// Delete an event.
+    /// </summary>
+    /// <param name="eventId">The event's unique identifier</param>
+    /// <param name="cf">Cancellation token</param>
+    /// <returns>A task representing the asynchronous operation</returns>
     Task DeleteAsync(Guid eventId, CancellationToken cf = default);
 }

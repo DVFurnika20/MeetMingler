@@ -13,9 +13,11 @@ public class EventService(IMapper mapper, ApplicationDbContext context) : IEvent
 {
     public async Task<EventVM?> CreateAsync(EventIM im, CancellationToken cf = default)
     {
+        // map input model to entity
         var eventEntity = mapper.Map<Event>(im);
         var eventMetadata = im.Metadata;
-
+        
+        // insert event and metadata
         await context.Events.AddAsync(eventEntity, cf);
         await context.EventMetadataEntries.AddRangeAsync(eventMetadata.Select(e =>
         {
@@ -23,35 +25,42 @@ public class EventService(IMapper mapper, ApplicationDbContext context) : IEvent
             m.EventId = eventEntity.Id;
             return m;
         }), cf);
-
+        
+        // save changes and map to view model
         await context.SaveChangesAsync(cf);
         var mappedEvent = mapper.Map<EventVM>(eventEntity);
         mappedEvent.Metadata = eventMetadata.Select(mapper.Map<EventMetadataVM>);
-
+        
+        // return created event
         return mappedEvent;
     }
 
     public async Task<EventVM?> GetByIdAsync(Guid id, CancellationToken cf = default)
     {
+        // retrieve event by id
         var eventEntity = await context.Events
             .AsNoTracking()
             .Include(@event => @event.Metadata)
             .FirstOrDefaultAsync(e => e.Id == id, cf);
-
+        
+        // if event not found, return null
         if (eventEntity == null)
         {
             return null;
         }
-
+        
+        // map to EventVM
         var mappedEvent = mapper.Map<EventVM>(eventEntity);
         mappedEvent.Metadata = eventEntity.Metadata.Select(mapper.Map<EventMetadataVM>);
-
+        
+        // return event view model
         return mappedEvent;
     }
 
     public async Task<IEnumerable<EventVM>> GetCollectionByCreatorAsync(Guid creatorId, List<string> includeMetadataKeys,
         CancellationToken cf = default)
     {
+        // retrieve events by creator and include metadata keys
         var query = await context.Events.AsNoTracking()
             .Join(context.EventMetadataEntries,
                 @event => @event.Id,
@@ -61,6 +70,7 @@ public class EventService(IMapper mapper, ApplicationDbContext context) : IEvent
                         && includeMetadataKeys.Contains(e.MetadataEntry.Key))
             .ToListAsync(cf);
 
+        // map to EventVM
         return query.Select(e => e.Event).Distinct().Select(e =>
         {
             var eventVm = mapper.Map<EventVM>(e);
@@ -77,6 +87,7 @@ public class EventService(IMapper mapper, ApplicationDbContext context) : IEvent
     public IQueryable<string> GetDistinctMetadataValuesAsync(string metadataKey,
         CancellationToken cf = default)
     {
+        // retrieve distinct metadata values for a given metadata key
         return context.EventMetadataEntries
             .Where(em => em.Key == metadataKey)
             .OrderBy(em => em.Value)
@@ -125,31 +136,104 @@ public class EventService(IMapper mapper, ApplicationDbContext context) : IEvent
             
             return eventVm;
         }); 
-
+        
+        // return paginated and filtered events
         return new BaseCollectionVM<EventVM>
         {
             Items = result,
             Count = count
         };
     }
-
-    public Task DeleteAsync(Guid eventId, CancellationToken cf = default)
+    
+    public async Task DeleteAsync(Guid eventId, CancellationToken cf = default)
     {
-        throw new NotImplementedException();
+        // retrieve event
+        var eventEntity = await context.Events.FirstOrDefaultAsync(e => e.Id == eventId, cf);
+        
+        // if event not found, throw exception
+        if (eventEntity == null)
+        {
+            throw new KeyNotFoundException("Event not found.");
+        }
+        // remove event and save changes
+        context.Events.Remove(eventEntity);
+        await context.SaveChangesAsync(cf);
     }
 
-    public Task<EventVM?> AddMetadataAsync(Guid eventId, EventMetadataIM metadata, CancellationToken cf = default)
+    public async Task<EventVM?> AddMetadataAsync(Guid eventId, EventMetadataIM metadata, CancellationToken cf = default)
     {
-        throw new NotImplementedException();
+        // retrieve event
+        var eventEntity = await context.Events
+            .Include(e => e.Metadata)
+            .FirstOrDefaultAsync(e => e.Id == eventId, cf);
+
+        // if event not found, throw exception
+        if (eventEntity == null)
+        {
+            throw new KeyNotFoundException("Event not found.");
+        }
+        
+        // check if metadata key already exists
+        var existingMetadata = eventEntity.Metadata.FirstOrDefault(m => m.Key == metadata.Key);
+        if (existingMetadata != null)
+        {
+            // update existing metadata
+            existingMetadata.Value = metadata.Value;
+            context.EventMetadataEntries.Update(existingMetadata);
+        }
+        else
+        {
+            // insert new metadata
+            var newMetadata = new EventMetadata
+            {
+                EventId = eventId,
+                Key = metadata.Key,
+                Value = metadata.Value
+            };
+            await context.EventMetadataEntries.AddAsync(newMetadata, cf);
+        }
+        // save changes and return updated event
+        await context.SaveChangesAsync(cf);
+        return await GetByIdAsync(eventId, cf);
     }
 
-    public Task<EventVM?> DeleteMetadataAsync(Guid eventId, string key, CancellationToken cf = default)
+    public async Task<EventVM?> DeleteMetadataAsync(Guid eventId, string key, CancellationToken cf = default)
     {
-        throw new NotImplementedException();
+        // retrieve event
+        var eventEntity = await context.Events
+            .Include(e => e.Metadata)
+            .FirstOrDefaultAsync(e => e.Id == eventId, cf);
+        
+        // if event not found, throw exception
+        if (eventEntity == null)
+        {
+            throw new KeyNotFoundException("Event not found.");
+        }
+        
+        // if metadata key not found, throw exception
+        if (eventEntity.Metadata.FirstOrDefault(m => m.Key == key) == null)
+        {
+            throw new KeyNotFoundException("Metadata not found.");
+        }
+        
+        // remove metadata and save changes
+        context.EventMetadataEntries.Remove(eventEntity.Metadata.FirstOrDefault(m => m.Key == key)!);
+        await context.SaveChangesAsync(cf);
+        return await GetByIdAsync(eventId, cf);
     }
 
-    public Task SetCancelledAsync(Guid id, bool cancelled, CancellationToken cf = default)
+    public async Task SetCancelledAsync(Guid id, bool cancelled, CancellationToken cf = default)
     {
-        throw new NotImplementedException();
+        // retrieve event
+        var eventEntity = await context.Events.FirstOrDefaultAsync(e => e.Id == id, cf);
+        if (eventEntity == null)
+        {
+            throw new KeyNotFoundException("Event not found.");
+        }
+        
+        // update cancellation status and save changes
+        eventEntity.Cancelled = cancelled;
+        context.Events.Update(eventEntity);
+        await context.SaveChangesAsync(cf);
     }
 }
