@@ -65,10 +65,12 @@ public class AuthController(
     }
 
     [HttpGet]
-    public Task<ActionResult> Self(CancellationToken cf = default)
+#pragma warning disable CS1998 // Async method lacks 'await' operators and will run synchronously
+    public async Task<ActionResult<UserVM>> Self(CancellationToken cf = default)
+#pragma warning restore CS1998 // Async method lacks 'await' operators and will run synchronously
     {
-        return Task.FromResult<ActionResult>(Json(
+        return Json(
             mapper.Map<UserVM>(_currentUser.User)
-        ));
+        );
     }
 }
