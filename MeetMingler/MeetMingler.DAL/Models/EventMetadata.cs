@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace MeetMingler.DAL.Models;
 
-[Index(nameof(EventId), nameof(Key))]
+[Index(nameof(EventId), nameof(Key), IsUnique = true)]
 public class EventMetadata
 {
     [Key] public Guid Id { get; set; } = Guid.NewGuid();

@@ -76,7 +76,8 @@ namespace MeetMingler.DAL.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("EventId", "Key");
+                    b.HasIndex("EventId", "Key")
+                        .IsUnique();
 
                     b.ToTable("EventMetadataEntries");
                 });
