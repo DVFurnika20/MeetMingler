@@ -9,27 +9,21 @@ using Microsoft.EntityFrameworkCore;
 
 namespace MeetMingler.BLL.Services.Implementations;
 
-public class EventService(IMapper mapper, ApplicationDbContext context) : IEventService
+public class EventService(IMapper mapper, ICurrentUser currentUser, ApplicationDbContext context) : IEventService
 {
     public async Task<EventVM?> CreateAsync(EventIM im, CancellationToken cf = default)
     {
         // map input model to entity
         var eventEntity = mapper.Map<Event>(im);
-        var eventMetadata = im.Metadata;
+        eventEntity.CreatorId = currentUser.User.Id;
         
         // insert event and metadata
         await context.Events.AddAsync(eventEntity, cf);
-        await context.EventMetadataEntries.AddRangeAsync(eventMetadata.Select(e =>
-        {
-            var m = mapper.Map<EventMetadata>(e);
-            m.EventId = eventEntity.Id;
-            return m;
-        }), cf);
+        // await context.EventMetadataEntries.AddRangeAsync(eventMetadata, cf);
         
         // save changes and map to view model
         await context.SaveChangesAsync(cf);
         var mappedEvent = mapper.Map<EventVM>(eventEntity);
-        mappedEvent.Metadata = eventMetadata.Select(mapper.Map<EventMetadataVM>);
         
         // return created event
         return mappedEvent;
@@ -41,6 +35,7 @@ public class EventService(IMapper mapper, ApplicationDbContext context) : IEvent
         var eventEntity = await context.Events
             .AsNoTracking()
             .Include(@event => @event.Metadata)
+            .Include(@event => @event.Creator)
             .FirstOrDefaultAsync(e => e.Id == id, cf);
         
         // if event not found, return null
@@ -62,23 +57,18 @@ public class EventService(IMapper mapper, ApplicationDbContext context) : IEvent
     {
         // retrieve events by creator and include metadata keys
         var query = await context.Events.AsNoTracking()
-            .Join(context.EventMetadataEntries,
-                @event => @event.Id,
-                eventMetadata => eventMetadata.EventId,
-                (@event, eventMetadata) => new { Event = @event, MetadataEntry = eventMetadata })
-            .Where(e => e.Event.CreatorId == creatorId
-                        && includeMetadataKeys.Contains(e.MetadataEntry.Key))
+            .Include(@event => @event.Creator)
+            .Include(@event => @event.Metadata)
             .ToListAsync(cf);
 
         // map to EventVM
-        return query.Select(e => e.Event).Distinct().Select(e =>
+        
+        return query.Select(e =>
         {
             var eventVm = mapper.Map<EventVM>(e);
             
-            eventVm.Metadata = query
-                .Where(em => em.Event.Id == e.Id)
-                .Select(em => em.MetadataEntry)
-                .Select(mapper.Map<EventMetadataVM>);
+            eventVm.Metadata = eventVm.Metadata
+                .Where(em => includeMetadataKeys.Contains(em.Key)).ToList();
             
             return eventVm;
         });
@@ -145,19 +135,22 @@ public class EventService(IMapper mapper, ApplicationDbContext context) : IEvent
         };
     }
     
-    public async Task DeleteAsync(Guid eventId, CancellationToken cf = default)
+    public async Task<bool> DeleteAsync(Guid eventId, CancellationToken cf = default)
     {
         // retrieve event
         var eventEntity = await context.Events.FirstOrDefaultAsync(e => e.Id == eventId, cf);
         
-        // if event not found, throw exception
+        // if event not found, return null
         if (eventEntity == null)
         {
-            throw new KeyNotFoundException("Event not found.");
+            return false;
         }
+        
         // remove event and save changes
         context.Events.Remove(eventEntity);
         await context.SaveChangesAsync(cf);
+        
+        return true;
     }
 
     public async Task<EventVM?> AddMetadataAsync(Guid eventId, EventMetadataIM metadata, CancellationToken cf = default)
@@ -167,10 +160,10 @@ public class EventService(IMapper mapper, ApplicationDbContext context) : IEvent
             .Include(e => e.Metadata)
             .FirstOrDefaultAsync(e => e.Id == eventId, cf);
 
-        // if event not found, throw exception
+        // if event not found, return null
         if (eventEntity == null)
         {
-            throw new KeyNotFoundException("Event not found.");
+            return null;
         }
         
         // check if metadata key already exists
@@ -204,16 +197,16 @@ public class EventService(IMapper mapper, ApplicationDbContext context) : IEvent
             .Include(e => e.Metadata)
             .FirstOrDefaultAsync(e => e.Id == eventId, cf);
         
-        // if event not found, throw exception
+        // if event not found, return null
         if (eventEntity == null)
         {
-            throw new KeyNotFoundException("Event not found.");
+            return null;
         }
         
-        // if metadata key not found, throw exception
+        // if metadata key not found, return null
         if (eventEntity.Metadata.FirstOrDefault(m => m.Key == key) == null)
         {
-            throw new KeyNotFoundException("Metadata not found.");
+            return null;
         }
         
         // remove metadata and save changes
@@ -222,18 +215,19 @@ public class EventService(IMapper mapper, ApplicationDbContext context) : IEvent
         return await GetByIdAsync(eventId, cf);
     }
 
-    public async Task SetCancelledAsync(Guid id, bool cancelled, CancellationToken cf = default)
+    public async Task<bool> SetCancelledAsync(Guid id, bool cancelled, CancellationToken cf = default)
     {
         // retrieve event
         var eventEntity = await context.Events.FirstOrDefaultAsync(e => e.Id == id, cf);
         if (eventEntity == null)
         {
-            throw new KeyNotFoundException("Event not found.");
+            return false;
         }
         
         // update cancellation status and save changes
         eventEntity.Cancelled = cancelled;
         context.Events.Update(eventEntity);
         await context.SaveChangesAsync(cf);
+        return true;
     }
 }

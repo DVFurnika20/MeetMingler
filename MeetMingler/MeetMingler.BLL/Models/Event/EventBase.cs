@@ -11,6 +11,4 @@ public class EventBase
     [Required] public DateTime StartTime { get; set; }
     
     [Required] public DateTime EndTime { get; set; }
-    
-    [Required] public bool Cancelled { get; set; }
 }
