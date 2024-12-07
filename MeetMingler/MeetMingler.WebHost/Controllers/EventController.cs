@@ -1,3 +1,5 @@
+using MeetMingler.BLL.Filters;
+using MeetMingler.BLL.Models;
 using MeetMingler.BLL.Models.Event;
 using MeetMingler.BLL.Services.Contracts;
 using Microsoft.AspNetCore.Mvc;
@@ -36,6 +38,13 @@ public class EventController(IAuthService authService, ICurrentUser currentUser,
     public async Task<ActionResult<IEnumerable<EventVM>>> GetByCreator([FromRoute] Guid creatorId, [FromQuery] List<string> includeMetadataKeys)
     {
         var result = await eventService.GetCollectionByCreatorAsync(creatorId, includeMetadataKeys);
+        return Ok(result);
+    }
+    
+    [HttpGet]
+    public async Task<ActionResult<BaseCollectionVM<EventVM>>> GetAllPaginatedAndFiltered([FromQuery] PaginationOptions paginationOptions, [FromQuery] EventFilter filter)
+    {
+        var result = await eventService.GetAllPaginatedAndFilteredAsync(paginationOptions, filter);
         return Ok(result);
     }
     
