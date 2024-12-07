@@ -45,4 +45,48 @@ public class EventController(IAuthService authService, ICurrentUser currentUser,
         var result = await eventService.GetDistinctMetadataValuesAsync(metadataKey).ToListAsync();
         return Ok(result);
     }
+    
+    [HttpPatch("{id:guid}")]
+    public async Task<ActionResult> SetCancelled([FromRoute] Guid id, [FromBody] bool cancelled)
+    {
+        var result = await eventService.SetCancelledAsync(id, cancelled);
+        if (!result)
+        {
+            return BadRequest("Cancellation status update failed.");
+        }
+        return Ok();
+    }
+    
+    [HttpPost("{eventId:guid}")]
+    public async Task<ActionResult<EventVM>> AddMetadata([FromRoute] Guid eventId, [FromBody] EventMetadataIM metadata)
+    {
+        var result = await eventService.AddMetadataAsync(eventId, metadata);
+        if (result == null)
+        {
+            return BadRequest("Metadata addition failed.");
+        }
+        return Ok(result);
+    }
+    
+    [HttpDelete("{eventId:guid}/{key}")]
+    public async Task<ActionResult> DeleteMetadata([FromRoute] Guid eventId, [FromRoute] string key)
+    {
+        var result = await eventService.DeleteMetadataAsync(eventId, key);
+        if (result == null)
+        {
+            return BadRequest("Metadata deletion failed.");
+        }
+        return Ok();
+    }
+    
+    [HttpDelete("{id:guid}")]
+    public async Task<ActionResult> Delete([FromRoute] Guid id)
+    {
+        var result = await eventService.DeleteAsync(id);
+        if (!result)
+        {
+            return BadRequest("Event deletion failed.");
+        }
+        return Ok();
+    }
 }
