@@ -11,6 +11,7 @@ public static class ServiceExtensions
         services.AddScoped<IUserService, UserService>();
         services.AddScoped<IAuthService, AuthService>();
         services.AddScoped<ICurrentUser, CurrentUser>();
+        services.AddScoped<IEventService, EventService>();
     }
 
     public static void AddAutoMapper(this IServiceCollection services)
