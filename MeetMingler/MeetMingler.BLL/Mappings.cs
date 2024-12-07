@@ -16,6 +16,9 @@ internal class Mappings : Profile
         CreateMap<EventIM, Event>();
         CreateMap<Event, EventVM>();
         
+        CreateMap<EventUM, Event>();
+        CreateMap<Event, EventUM>();
+        
         CreateMap<EventMetadataIM, EventMetadata>();
         CreateMap<EventMetadata, EventMetadataVM>();
     }

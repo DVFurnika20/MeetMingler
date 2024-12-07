@@ -35,7 +35,15 @@ public interface IEventService : IGenericCreateService<EventVM, EventIM>,
     /// <returns>A collection of values related to the metadata key</returns>
     IQueryable<string> GetDistinctMetadataValuesAsync(string metadataKey, CancellationToken cf = default);
  
-    // TODO: add methods for updating single event
+    // TODO: add methods for updating single event title and description, start and end date
+    /// <summary>
+    /// Update the event title, description, start date, and end date.
+    /// </summary>
+    /// <param name="eventId">The event's unique identifier</param>
+    /// <param name="updateModel">The event update model</param>
+    /// <param name="cf">Cancellation token</param>
+    /// <returns>The updated event view model</returns>
+    Task<EventVM?> UpdateEventAsync(Guid eventId, EventUM updateModel, CancellationToken cf = default);
 
     /// <summary>
     /// Set the cancellation status of an event.
@@ -74,6 +82,20 @@ public interface IEventService : IGenericCreateService<EventVM, EventIM>,
     /// <returns>A task representing the asynchronous operation</returns>
     Task<bool> DeleteAsync(Guid eventId, CancellationToken cf = default);
     
-    // TODO: Make method for registering a user for attendance to an event
-    // TODO: Make method for retrieving dates on which events are happening
+    /// <summary>
+    /// Register a user for attendance to an event.
+    /// </summary>
+    /// <param name="eventId">The event's unique identifier</param>
+    /// <param name="userId">The user's unique identifier</param>
+    /// <param name="cf">Cancellation token</param>
+    /// <returns>A task representing the asynchronous operation</returns>
+    Task<bool> RegisterUserForEventAsync(Guid eventId, Guid userId, CancellationToken cf = default);
+
+    /// <summary>
+    /// Retrieve dates on which events are happening.
+    /// </summary>
+    /// <param name="dateRange">The date range to search within</param>
+    /// <param name="cf">Cancellation token</param>
+    /// <returns>A collection of dates on which events are happening</returns>
+    Task<IEnumerable<DateTime>> GetEventDatesAsync(DateTime[] dateRange, CancellationToken cf = default);
 }

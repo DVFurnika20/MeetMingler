@@ -291,4 +291,85 @@ public class EventService(IMapper mapper, ICurrentUser currentUser, ApplicationD
         await context.SaveChangesAsync(cf);
         return true;
     }
+
+    public async Task<bool> RegisterUserForEventAsync(Guid eventId, Guid userId, CancellationToken cf = default)
+    {
+        // retrieve event
+        var eventEntity = await context.Events
+            .Include(e => e.Participants)
+            .FirstOrDefaultAsync(e => e.Id == eventId, cf);
+
+        // if event doesn't exist return false
+        if (eventEntity == null)
+        {
+            return false;
+        }
+
+        // retrieve user
+        var userEntity = await context.Users.FirstOrDefaultAsync(u => u.Id == userId, cf);
+
+        // if user doesn't exist return false
+        if (userEntity == null)
+        {
+            return false;
+        }
+
+        // check if user is already registered for the event
+        var isUserRegistered = await context.EventParticipants
+            .AnyAsync(ep => ep.EventId == eventId && ep.UserId == userId, cf);
+
+        if (isUserRegistered)
+        {
+            return false;
+        }
+
+        // register user for event
+        eventEntity.Participants.Add(new EventParticipant
+        {
+            EventId = eventId,
+            UserId = userId,
+        });
+
+        // save changes
+        await context.SaveChangesAsync(cf);
+        return true;
+    }
+
+    public async Task<IEnumerable<DateTime>> GetEventDatesAsync(DateTime[] dateRange, CancellationToken cf = default)
+    {
+        // retrieve dates on which events are happening within the given date range
+        return await context.Events
+            .Where(e => dateRange.Contains(e.StartTime.Date))
+            .Select(e => e.StartTime.Date)
+            .Distinct()
+            .ToListAsync(cf);
+    }
+    
+    public async Task<EventVM?> UpdateEventAsync(Guid eventId, EventUM updateModel, CancellationToken cf = default)
+    {
+        // retrieve event
+        var eventEntity = await context.Events.FirstOrDefaultAsync(e => e.Id == eventId, cf);
+
+        // if event doesn't exist return null
+        if (eventEntity == null)
+        {
+            return null;
+        }
+
+        // if event doesn't belong to currentUser return null
+        if (eventEntity.CreatorId != currentUser.User.Id)
+        {
+            return null;
+        }
+
+        // map the updateModel to entity
+        mapper.Map(updateModel, eventEntity);
+
+        // update entity state and save changes
+        context.Entry(eventEntity).State = EntityState.Modified;
+        await context.SaveChangesAsync(cf);
+
+        // map to EventVM and return
+        return mapper.Map<EventVM>(eventEntity);
+    }
 }
