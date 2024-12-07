@@ -1,4 +1,5 @@
 using MeetMingler.BLL.Filters;
+using MeetMingler.BLL.Models;
 using MeetMingler.BLL.Models.Event;
 using MeetMingler.BLL.Services.Contracts.Generic;
  
@@ -14,15 +15,17 @@ public interface IEventService : IGenericCreateService<EventVM, EventIM>,
     /// <param name="cf">Cancellation token</param>
     /// <returns>The view model of an event</returns>
     Task<EventVM?> GetByIdAsync(Guid id, CancellationToken cf = default);
- 
+
     /// <summary>
     /// Retrieve all events created by a user
     /// </summary>
     /// <param name="creatorId">The user's unique identifier</param>
     /// <param name="includeMetadataKeys">The metadata key/value pairs to include in the resultset</param>
+    /// <param name="pagination"></param>
     /// <param name="cf">Cancellation token</param>
     /// <returns>A collection of events</returns>
-    Task<IEnumerable<EventVM>> GetCollectionByCreatorAsync(Guid creatorId, List<string> includeMetadataKeys, CancellationToken cf = default);
+    Task<IEnumerable<EventVM>> GetCollectionByCreatorAsync(Guid creatorId, List<string> includeMetadataKeys,
+        PaginationOptions pagination, CancellationToken cf = default);
 
     /// <summary>
     /// Retrieve all distinct metadata values for a given metadata key
@@ -33,10 +36,6 @@ public interface IEventService : IGenericCreateService<EventVM, EventIM>,
     IQueryable<string> GetDistinctMetadataValuesAsync(string metadataKey, CancellationToken cf = default);
  
     // TODO: add methods for updating single event
-
-    // TODO: add methods for cancelling/reinstating event
-    // TODO: add methods for adding/updating/deleting event metadata
-    // TODO: add methods for deleting single event
 
     /// <summary>
     /// Set the cancellation status of an event.
@@ -74,4 +73,7 @@ public interface IEventService : IGenericCreateService<EventVM, EventIM>,
     /// <param name="cf">Cancellation token</param>
     /// <returns>A task representing the asynchronous operation</returns>
     Task<bool> DeleteAsync(Guid eventId, CancellationToken cf = default);
+    
+    // TODO: Make method for registering a user for attendance to an event
+    // TODO: Make method for retrieving dates on which events are happening
 }
