@@ -86,16 +86,16 @@ public interface IEventService : IGenericCreateService<EventVM, EventIM>,
     /// Register a user for attendance to an event.
     /// </summary>
     /// <param name="eventId">The event's unique identifier</param>
-    /// <param name="userId">The user's unique identifier</param>
     /// <param name="cf">Cancellation token</param>
     /// <returns>A task representing the asynchronous operation</returns>
-    Task<bool> RegisterUserForEventAsync(Guid eventId, Guid userId, CancellationToken cf = default);
+    Task<bool> RegisterUserForEventAsync(Guid eventId, CancellationToken cf = default);
 
     /// <summary>
     /// Retrieve dates on which events are happening.
     /// </summary>
-    /// <param name="dateRange">The date range to search within</param>
+    /// <param name="startDateRange">The start of the range of the search</param>
+    /// <param name="endDateRange">The end of the range of the search</param>
     /// <param name="cf">Cancellation token</param>
     /// <returns>A collection of dates on which events are happening</returns>
-    Task<IEnumerable<DateTime>> GetEventDatesAsync(DateTime[] dateRange, CancellationToken cf = default);
+    Task<IEnumerable<DateTime>> GetEventDatesAsync(DateTime startDateRange, DateTime endDateRange, CancellationToken cf = default);
 }

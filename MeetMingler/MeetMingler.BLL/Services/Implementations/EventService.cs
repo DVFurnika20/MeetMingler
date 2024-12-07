@@ -101,7 +101,7 @@ public class EventService(IMapper mapper, ICurrentUser currentUser, ApplicationD
                                      || e.Description.Contains(filter.TextSearch));
         }
 
-        var parameter = Expression.Parameter(typeof(string), "x");
+        var parameter = Expression.Parameter(typeof(EventMetadata), "x");
         Expression? combinedCondition = null;
         foreach (var metadataFilter in filter.MetadataFilters)
         {
@@ -110,9 +110,14 @@ public class EventService(IMapper mapper, ICurrentUser currentUser, ApplicationD
             var valueProperty = Expression.Property(parameter, nameof(EventMetadata.Value));
 
             var keyCondition = Expression.Equal(keyProperty, Expression.Constant(metadataFilter.Key));
-            var valueCondition = Expression.Equal(valueProperty, Expression.Constant(metadataFilter.Value));
+            var containsMethod = typeof(string).GetMethod("Contains", [typeof(string)]);
+            var containsExpression = Expression.Call(
+                Expression.Constant(metadataFilter.Value),
+                containsMethod!,
+                valueProperty);
+            // var valueCondition = Expression.Equal(valueProperty, Expression.Constant(metadataFilter.Value));
 
-            var combinedFilter = Expression.AndAlso(keyCondition, valueCondition);
+            var combinedFilter = Expression.AndAlso(keyCondition, containsExpression);
 
             // Combine with OR
             combinedCondition = combinedCondition == null
@@ -122,33 +127,52 @@ public class EventService(IMapper mapper, ICurrentUser currentUser, ApplicationD
 
         if (combinedCondition != null)
         {
-            var events = await query.Join(
+            var events = query.Join(
                     context.EventMetadataEntries.Where(
                         Expression.Lambda<Func<EventMetadata, bool>>(combinedCondition, parameter)),
                     e => e.Id,
                     m => m.EventId,
                     (e, m) => new { Event = e, MetadataEntry = m })
-                .GroupBy(e => e.Event)
-                .Skip((paginationOptions.Page - 1) * paginationOptions.PageSize)
-                .Take(paginationOptions.PageSize)
-                .ToListAsync(cf);
+                .GroupBy(e => e.Event);
+            
+            // let's hope entity framework streams the resultset instead of fetching the whole thing
+            List<EventVM> result = [];
+            var skipCounter = 0;
+            var takeCounter = 0;
+            foreach (var eventGroup in events)
+            {
+                skipCounter++;
+                if (skipCounter < paginationOptions.PageSize * (paginationOptions.Page - 1))
+                    continue;
 
+                if (takeCounter >= paginationOptions.PageSize)
+                    break;
+
+                var @event = mapper.Map<EventVM>(eventGroup.Key);
+                @event.Metadata = eventGroup
+                    .Where(em => filter.IncludeMetadataKeys.Contains(em.MetadataEntry.Key))
+                    .Select(e => mapper.Map<EventMetadataVM>(e.MetadataEntry)).ToList();
+                result.Add(@event);
+                
+                takeCounter++;
+            }
+            
             return new BaseCollectionVM<EventVM>
             {
-                Items = [],
-                Count = 0
+                Items = result,
+                Count = result.Count
             };
         }
         else
         {
             var events = await query
+                .Include(e => e.Creator)
                 .Include(e => e.Metadata)
                 .Skip((paginationOptions.Page - 1) * paginationOptions.PageSize)
                 .Take(paginationOptions.PageSize)
                 .ToListAsync(cf);
             
             var count = await query.CountAsync(cf);
-            var items = await query.ToListAsync(cf);
             
             // map to EventVM
             var result = events.Select(e =>
@@ -292,8 +316,10 @@ public class EventService(IMapper mapper, ICurrentUser currentUser, ApplicationD
         return true;
     }
 
-    public async Task<bool> RegisterUserForEventAsync(Guid eventId, Guid userId, CancellationToken cf = default)
+    public async Task<bool> RegisterUserForEventAsync(Guid eventId, CancellationToken cf = default)
     {
+        var userId = currentUser.User.Id;
+        
         // retrieve event
         var eventEntity = await context.Events
             .Include(e => e.Participants)
@@ -335,11 +361,11 @@ public class EventService(IMapper mapper, ICurrentUser currentUser, ApplicationD
         return true;
     }
 
-    public async Task<IEnumerable<DateTime>> GetEventDatesAsync(DateTime[] dateRange, CancellationToken cf = default)
+    public async Task<IEnumerable<DateTime>> GetEventDatesAsync(DateTime startDateRange, DateTime endDateRange, CancellationToken cf = default)
     {
         // retrieve dates on which events are happening within the given date range
         return await context.Events
-            .Where(e => dateRange.Contains(e.StartTime.Date))
+            .Where(e => e.StartTime >= startDateRange && e.StartTime <= endDateRange)
             .Select(e => e.StartTime.Date)
             .Distinct()
             .ToListAsync(cf);

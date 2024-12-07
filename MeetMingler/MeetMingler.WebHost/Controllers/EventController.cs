@@ -45,9 +45,9 @@ public class EventController(IAuthService authService, ICurrentUser currentUser,
         return Ok(result);
     }
 
-    [HttpGet]
+    [HttpPost]
     public async Task<ActionResult<BaseCollectionVM<EventVM>>> GetAllPaginatedAndFiltered(
-        [FromQuery] PaginationOptions paginationOptions, [FromQuery] EventFilter filter, CancellationToken ct)
+        [FromQuery] PaginationOptions paginationOptions, [FromBody] EventFilter filter, CancellationToken ct)
     {
         var result = await eventService.GetAllPaginatedAndFilteredAsync(paginationOptions, filter, ct);
         return Ok(result);
