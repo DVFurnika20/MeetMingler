@@ -83,6 +83,37 @@ public class EventController(IAuthService authService, ICurrentUser currentUser,
 
         return Ok(result);
     }
+    
+    [HttpPost("{eventId:guid}/register")]
+    public async Task<ActionResult> RegisterUserForEvent([FromRoute] Guid eventId, CancellationToken ct)
+    {
+        var result = await eventService.RegisterUserForEventAsync(eventId, ct);
+        if (!result)
+        {
+            return Forbid();
+        }
+
+        return Ok();
+    }
+    
+    [HttpGet("dates")]
+    public async Task<ActionResult<IEnumerable<DateTime>>> GetEventDates([FromQuery] DateTime startDateRange, [FromQuery] DateTime endDateRange, CancellationToken ct)
+    {
+        var result = await eventService.GetEventDatesAsync(startDateRange, endDateRange, ct);
+        return Ok(result);
+    }
+    
+    [HttpPut("{eventId:guid}")]
+    public async Task<ActionResult<EventVM>> UpdateEvent([FromRoute] Guid eventId, [FromBody] EventUM updateModel, CancellationToken ct)
+    {
+        var result = await eventService.UpdateEventAsync(eventId, updateModel, ct);
+        if (result == null)
+        {
+            return Forbid();
+        }
+
+        return Ok(result);
+    }
 
     [HttpDelete("{eventId:guid}/{key}")]
     public async Task<ActionResult> DeleteMetadata([FromRoute] Guid eventId, [FromRoute] string key, CancellationToken ct)
