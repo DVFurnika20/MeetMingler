@@ -14,6 +14,7 @@ import { Route as rootRoute } from './routes/__root'
 import { Route as RegisterImport } from './routes/register'
 import { Route as LoginImport } from './routes/login'
 import { Route as IndexImport } from './routes/index'
+import { Route as EventsCreateImport } from './routes/events.create'
 import { Route as EventsEventIdImport } from './routes/events.$eventId'
 
 // Create/Update Routes
@@ -33,6 +34,12 @@ const LoginRoute = LoginImport.update({
 const IndexRoute = IndexImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRoute,
+} as any)
+
+const EventsCreateRoute = EventsCreateImport.update({
+  id: '/events/create',
+  path: '/events/create',
   getParentRoute: () => rootRoute,
 } as any)
 
@@ -74,6 +81,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof EventsEventIdImport
       parentRoute: typeof rootRoute
     }
+    '/events/create': {
+      id: '/events/create'
+      path: '/events/create'
+      fullPath: '/events/create'
+      preLoaderRoute: typeof EventsCreateImport
+      parentRoute: typeof rootRoute
+    }
   }
 }
 
@@ -84,6 +98,7 @@ export interface FileRoutesByFullPath {
   '/login': typeof LoginRoute
   '/register': typeof RegisterRoute
   '/events/$eventId': typeof EventsEventIdRoute
+  '/events/create': typeof EventsCreateRoute
 }
 
 export interface FileRoutesByTo {
@@ -91,6 +106,7 @@ export interface FileRoutesByTo {
   '/login': typeof LoginRoute
   '/register': typeof RegisterRoute
   '/events/$eventId': typeof EventsEventIdRoute
+  '/events/create': typeof EventsCreateRoute
 }
 
 export interface FileRoutesById {
@@ -99,14 +115,26 @@ export interface FileRoutesById {
   '/login': typeof LoginRoute
   '/register': typeof RegisterRoute
   '/events/$eventId': typeof EventsEventIdRoute
+  '/events/create': typeof EventsCreateRoute
 }
 
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/login' | '/register' | '/events/$eventId'
+  fullPaths:
+    | '/'
+    | '/login'
+    | '/register'
+    | '/events/$eventId'
+    | '/events/create'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/login' | '/register' | '/events/$eventId'
-  id: '__root__' | '/' | '/login' | '/register' | '/events/$eventId'
+  to: '/' | '/login' | '/register' | '/events/$eventId' | '/events/create'
+  id:
+    | '__root__'
+    | '/'
+    | '/login'
+    | '/register'
+    | '/events/$eventId'
+    | '/events/create'
   fileRoutesById: FileRoutesById
 }
 
@@ -115,6 +143,7 @@ export interface RootRouteChildren {
   LoginRoute: typeof LoginRoute
   RegisterRoute: typeof RegisterRoute
   EventsEventIdRoute: typeof EventsEventIdRoute
+  EventsCreateRoute: typeof EventsCreateRoute
 }
 
 const rootRouteChildren: RootRouteChildren = {
@@ -122,6 +151,7 @@ const rootRouteChildren: RootRouteChildren = {
   LoginRoute: LoginRoute,
   RegisterRoute: RegisterRoute,
   EventsEventIdRoute: EventsEventIdRoute,
+  EventsCreateRoute: EventsCreateRoute,
 }
 
 export const routeTree = rootRoute
@@ -137,7 +167,8 @@ export const routeTree = rootRoute
         "/",
         "/login",
         "/register",
-        "/events/$eventId"
+        "/events/$eventId",
+        "/events/create"
       ]
     },
     "/": {
@@ -151,6 +182,9 @@ export const routeTree = rootRoute
     },
     "/events/$eventId": {
       "filePath": "events.$eventId.tsx"
+    },
+    "/events/create": {
+      "filePath": "events.create.tsx"
     }
   }
 }
