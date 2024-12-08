@@ -1,14 +1,16 @@
+using System.ComponentModel.DataAnnotations;
+
 namespace MeetMingler.BLL.Models.User;
 
 public class UserVM
 {
-    public Guid Id { get; set; }
+    [Required] public Guid Id { get; set; }
     
-    public string FirstName { get; set; } = null!;
+    [Required] public string FirstName { get; set; } = null!;
 
-    public string LastName { get; set; } = null!;
+    [Required] public string LastName { get; set; } = null!;
     
-    public string Email { get; set; } = null!;
+    [Required] public string Email { get; set; } = null!;
     
-    public string UserName { get; set; } = null!;
+    [Required] public string UserName { get; set; } = null!;
 }

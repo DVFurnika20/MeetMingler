@@ -14,8 +14,21 @@ public class EventController(IAuthService authService, ICurrentUser currentUser,
     : BaseController(authService, currentUser)
 {
     [HttpPost]
-    public async Task<ActionResult<EventVM>> Create([FromBody] EventIM eventIm, CancellationToken ct)
+    public async Task<ActionResult<EventVM>> Create([FromBody] EventDictionaryIM eventDictionaryIm, CancellationToken ct)
     {
+        var eventIm = new EventIM
+        {
+            Title = eventDictionaryIm.Title,
+            Description = eventDictionaryIm.Description,
+            StartTime = eventDictionaryIm.StartTime,
+            EndTime = eventDictionaryIm.EndTime,
+            Metadata = eventDictionaryIm.Metadata.Select(kvp => new EventMetadataIM
+            {
+                Key = kvp.Key,
+                Value = kvp.Value
+            }).ToList()
+        };
+        
         var result = await eventService.CreateAsync(eventIm, ct);
         if (result == null)
         {
