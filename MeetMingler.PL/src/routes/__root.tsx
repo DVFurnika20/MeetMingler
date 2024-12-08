@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button'
 import { Search } from 'lucide-react'
 import { Avatar, AvatarFallback } from '@/components/ui/avatar'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
+import { Toaster } from '@/components/ui/toaster'
 
 export const Route = createRootRoute({
     component: RootComponent,
@@ -24,6 +25,7 @@ function RootComponent() {
                     <ModeToggle />
                 </div>
             </div>
+            <Toaster />
             <Outlet />
         </React.Fragment>
     )

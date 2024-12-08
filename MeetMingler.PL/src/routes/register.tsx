@@ -8,7 +8,7 @@ import React from "react"
 import { Button } from "@/components/ui/button"
 import { Form } from "@/components/ui/form"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card.tsx";
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { DefaultTextFormField } from "@/components/default-text-formfield.tsx";
 import { useTheme } from "@/components/theme-provider.tsx";
 import { clsx } from "clsx";
@@ -38,9 +38,15 @@ const RegisterForm: React.FC<RegisterFormProps> = (props) => {
 const Register: React.FC = () => {
   const { theme } = useTheme();
   const { toast } = useToast();
+  const navigate = useNavigate();
+
   const { mutate } = apiHooks.usePostApiAuthRegister(undefined, {
-    onSuccess() {
-      console.log('great success!');
+    async onSuccess() {
+      toast({
+        title: "Registration successful, please login"
+      })
+
+      await navigate({ to: '/login' });
     },
     onError(e) {
       // @ts-ignore
