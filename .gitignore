@@ -54,3 +54,6 @@ obj/
 # Datasource local storage ignored files
 /dataSources/
 /dataSources.local.xml
+
+# Development appsettings ignored
+appsettings.Development.json
