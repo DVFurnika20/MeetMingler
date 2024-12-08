@@ -3,6 +3,7 @@ using AutoMapper;
 using MeetMingler.BLL.Filters;
 using MeetMingler.BLL.Models;
 using MeetMingler.BLL.Models.Event;
+using MeetMingler.BLL.Models.User;
 using MeetMingler.BLL.Services.Contracts;
 using MeetMingler.DAL.Data;
 using MeetMingler.DAL.Models;
@@ -331,15 +332,6 @@ public class EventService(IMapper mapper, ICurrentUser currentUser, ApplicationD
             return false;
         }
 
-        // retrieve user
-        var userEntity = await context.Users.FirstOrDefaultAsync(u => u.Id == userId, cf);
-
-        // if user doesn't exist return false
-        if (userEntity == null)
-        {
-            return false;
-        }
-
         // check if user is already registered for the event
         var isUserRegistered = await context.EventParticipants
             .AnyAsync(ep => ep.EventId == eventId && ep.UserId == userId, cf);
@@ -361,7 +353,7 @@ public class EventService(IMapper mapper, ICurrentUser currentUser, ApplicationD
         return true;
     }
 
-    public async Task<IEnumerable<DateTime>> GetEventDatesAsync(DateTime startDateRange, DateTime endDateRange, CancellationToken cf = default)
+    public async Task<IEnumerable<DateTime>> GetDatesAsync(DateTime startDateRange, DateTime endDateRange, CancellationToken cf = default)
     {
         // retrieve dates on which events are happening within the given date range
         return await context.Events
@@ -371,7 +363,7 @@ public class EventService(IMapper mapper, ICurrentUser currentUser, ApplicationD
             .ToListAsync(cf);
     }
     
-    public async Task<EventVM?> UpdateEventAsync(Guid eventId, EventUM updateModel, CancellationToken cf = default)
+    public async Task<EventVM?> UpdateAsync(Guid eventId, EventUM updateModel, CancellationToken cf = default)
     {
         // retrieve event
         var eventEntity = await context.Events.FirstOrDefaultAsync(e => e.Id == eventId, cf);
@@ -397,5 +389,49 @@ public class EventService(IMapper mapper, ICurrentUser currentUser, ApplicationD
 
         // map to EventVM and return
         return mapper.Map<EventVM>(eventEntity);
+    }
+
+    public async Task<BaseCollectionVM<UserVM>?> GetAttendees(Guid eventId, PaginationOptions pagination,
+        CancellationToken cf = default)
+    {
+        var participants = await context.EventParticipants
+            .Join(context.Users, participant => participant.UserId,
+                user => user.Id, (participant, user) => new { Participant = participant, User = user })
+            .Where(p => p.Participant.EventId == eventId)
+            .Select(p => mapper.Map<UserVM>(p.User))
+            .Take(pagination.PageSize)
+            .Skip((pagination.Page - 1) * pagination.PageSize)
+            .ToListAsync(cf);
+
+        if (participants.Count == 0)
+            return null;
+
+        return new BaseCollectionVM<UserVM>
+        {
+            Count = participants.Count,
+            Items = participants
+        };
+    }
+
+    public async Task<BaseCollectionVM<EventVM>?> GetCurrentUserAttendance(PaginationOptions pagination,
+        CancellationToken cf = default)
+    {
+        var events = await context.EventParticipants
+            .Join(context.Events, participant => participant.EventId, @event => @event.Id,
+                (participant, @event) => new { Participant = participant, Event = @event })
+            .Where(p => p.Participant.UserId == currentUser.User.Id)
+            .Select(p => mapper.Map<EventVM>(p.Event))
+            .Take(pagination.PageSize)
+            .Skip((pagination.Page - 1) * pagination.PageSize)
+            .ToListAsync(cf);
+        
+        if (events.Count == 0)
+            return null;
+
+        return new BaseCollectionVM<EventVM>()
+        {
+            Count = events.Count,
+            Items = events
+        };
     }
 }

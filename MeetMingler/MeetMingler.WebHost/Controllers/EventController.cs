@@ -1,6 +1,7 @@
 using MeetMingler.BLL.Filters;
 using MeetMingler.BLL.Models;
 using MeetMingler.BLL.Models.Event;
+using MeetMingler.BLL.Models.User;
 using MeetMingler.BLL.Services.Contracts;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -97,16 +98,16 @@ public class EventController(IAuthService authService, ICurrentUser currentUser,
     }
     
     [HttpGet("dates")]
-    public async Task<ActionResult<IEnumerable<DateTime>>> GetEventDates([FromQuery] DateTime startDateRange, [FromQuery] DateTime endDateRange, CancellationToken ct)
+    public async Task<ActionResult<IEnumerable<DateTime>>> GetDates([FromQuery] DateTime startDateRange, [FromQuery] DateTime endDateRange, CancellationToken ct)
     {
-        var result = await eventService.GetEventDatesAsync(startDateRange, endDateRange, ct);
+        var result = await eventService.GetDatesAsync(startDateRange, endDateRange, ct);
         return Ok(result);
     }
     
     [HttpPut("{eventId:guid}")]
-    public async Task<ActionResult<EventVM>> UpdateEvent([FromRoute] Guid eventId, [FromBody] EventUM updateModel, CancellationToken ct)
+    public async Task<ActionResult<EventVM>> Update([FromRoute] Guid eventId, [FromBody] EventUM updateModel, CancellationToken ct)
     {
-        var result = await eventService.UpdateEventAsync(eventId, updateModel, ct);
+        var result = await eventService.UpdateAsync(eventId, updateModel, ct);
         if (result == null)
         {
             return Forbid();
@@ -137,5 +138,29 @@ public class EventController(IAuthService authService, ICurrentUser currentUser,
         }
 
         return Ok();
+    }
+    
+    public async Task<ActionResult<UserVM>> GetAttendees([FromRoute] Guid eventId,
+        [FromQuery] PaginationOptions pagination, CancellationToken ct = default)
+    {
+        var result = await eventService.GetAttendees(eventId, pagination, ct);
+        if (result == null)
+        {
+            return NotFound();
+        }
+
+        return Ok(result);
+    }
+
+    public async Task<ActionResult<EventVM>> GetSelfAttendance([FromQuery] PaginationOptions pagination,
+        CancellationToken ct = default)
+    {
+        var result = await eventService.GetCurrentUserAttendance(pagination, ct);
+        if (result == null)
+        {
+            return NotFound();
+        }
+
+        return Ok(result);
     }
 }

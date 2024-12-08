@@ -1,6 +1,7 @@
 using MeetMingler.BLL.Filters;
 using MeetMingler.BLL.Models;
 using MeetMingler.BLL.Models.Event;
+using MeetMingler.BLL.Models.User;
 using MeetMingler.BLL.Services.Contracts.Generic;
  
 namespace MeetMingler.BLL.Services.Contracts;
@@ -43,7 +44,7 @@ public interface IEventService : IGenericCreateService<EventVM, EventIM>,
     /// <param name="updateModel">The event update model</param>
     /// <param name="cf">Cancellation token</param>
     /// <returns>The updated event view model</returns>
-    Task<EventVM?> UpdateEventAsync(Guid eventId, EventUM updateModel, CancellationToken cf = default);
+    Task<EventVM?> UpdateAsync(Guid eventId, EventUM updateModel, CancellationToken cf = default);
 
     /// <summary>
     /// Set the cancellation status of an event.
@@ -97,5 +98,24 @@ public interface IEventService : IGenericCreateService<EventVM, EventIM>,
     /// <param name="endDateRange">The end of the range of the search</param>
     /// <param name="cf">Cancellation token</param>
     /// <returns>A collection of dates on which events are happening</returns>
-    Task<IEnumerable<DateTime>> GetEventDatesAsync(DateTime startDateRange, DateTime endDateRange, CancellationToken cf = default);
+    Task<IEnumerable<DateTime>> GetDatesAsync(DateTime startDateRange, DateTime endDateRange, CancellationToken cf = default);
+
+    /// <summary>
+    /// Gets all the participants' user data of an event
+    /// </summary>
+    /// <param name="eventId">The event ID</param>
+    /// <param name="pagination">Pagination options</param>
+    /// <param name="cf">Cancellation token</param>
+    /// <returns>A collection of users which are attending </returns>
+    public Task<BaseCollectionVM<UserVM>?> GetAttendees(Guid eventId, PaginationOptions pagination,
+        CancellationToken cf = default);
+
+    /// <summary>
+    /// Gets all the events that a user is participating in
+    /// </summary>
+    /// <param name="pagination">Pagination options</param>
+    /// <param name="cf">Cancellation token</param>
+    /// <returns></returns>
+    public Task<BaseCollectionVM<EventVM>?> GetCurrentUserAttendance(PaginationOptions pagination,
+        CancellationToken cf = default);
 }
