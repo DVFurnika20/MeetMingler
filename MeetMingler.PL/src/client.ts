@@ -57,6 +57,12 @@ const EventVMBaseCollectionVM = z.object({
   items: z.array(EventVM),
   count: z.number().int(),
 });
+const EventUM = z.object({
+  title: z.string().min(1),
+  description: z.string().min(1),
+  startTime: z.string().datetime({ offset: true }),
+  endTime: z.string().datetime({ offset: true }),
+});
 
 export const schemas = {
   UserIM,
@@ -68,6 +74,7 @@ export const schemas = {
   EventVM,
   EventFilter,
   EventVMBaseCollectionVM,
+  EventUM,
 };
 
 const endpoints = makeApi([
@@ -215,6 +222,40 @@ const endpoints = makeApi([
   },
   {
     method: "get",
+    path: "/api/Event/GetAttendees/:eventId",
+    alias: "getApiEventGetAttendeesEventId",
+    requestFormat: "json",
+    parameters: [
+      {
+        name: "eventId",
+        type: "Path",
+        schema: z.string().uuid(),
+      },
+      {
+        name: "Page",
+        type: "Query",
+        schema: z.number().int().gte(1).lte(2147483647),
+      },
+      {
+        name: "PageSize",
+        type: "Query",
+        schema: z.number().int().gte(2).lte(15),
+      },
+      {
+        name: "SortByColumn",
+        type: "Query",
+        schema: z.string().optional(),
+      },
+      {
+        name: "Order",
+        type: "Query",
+        schema: z.enum(["Ascending", "Descending"]).optional(),
+      },
+    ],
+    response: UserVM,
+  },
+  {
+    method: "get",
     path: "/api/Event/GetByCreator/:creatorId",
     alias: "getApiEventGetByCreatorCreatorId",
     requestFormat: "json",
@@ -268,6 +309,25 @@ const endpoints = makeApi([
   },
   {
     method: "get",
+    path: "/api/Event/GetDates",
+    alias: "getApiEventGetDates",
+    requestFormat: "json",
+    parameters: [
+      {
+        name: "startDateRange",
+        type: "Query",
+        schema: z.string().datetime({ offset: true }).optional(),
+      },
+      {
+        name: "endDateRange",
+        type: "Query",
+        schema: z.string().datetime({ offset: true }).optional(),
+      },
+    ],
+    response: z.array(z.string().datetime({ offset: true })),
+  },
+  {
+    method: "get",
     path: "/api/Event/GetDistinctMetadataValues/:metadataKey",
     alias: "getApiEventGetDistinctMetadataValuesMetadataKey",
     requestFormat: "json",
@@ -279,6 +339,49 @@ const endpoints = makeApi([
       },
     ],
     response: z.array(z.string()),
+  },
+  {
+    method: "get",
+    path: "/api/Event/GetSelfAttendance",
+    alias: "getApiEventGetSelfAttendance",
+    requestFormat: "json",
+    parameters: [
+      {
+        name: "Page",
+        type: "Query",
+        schema: z.number().int().gte(1).lte(2147483647),
+      },
+      {
+        name: "PageSize",
+        type: "Query",
+        schema: z.number().int().gte(2).lte(15),
+      },
+      {
+        name: "SortByColumn",
+        type: "Query",
+        schema: z.string().optional(),
+      },
+      {
+        name: "Order",
+        type: "Query",
+        schema: z.enum(["Ascending", "Descending"]).optional(),
+      },
+    ],
+    response: EventVM,
+  },
+  {
+    method: "post",
+    path: "/api/Event/RegisterUserForEvent/:eventId",
+    alias: "postApiEventRegisterUserForEventEventId",
+    requestFormat: "json",
+    parameters: [
+      {
+        name: "eventId",
+        type: "Path",
+        schema: z.string().uuid(),
+      },
+    ],
+    response: z.void(),
   },
   {
     method: "patch",
@@ -299,9 +402,32 @@ const endpoints = makeApi([
     ],
     response: z.void(),
   },
+  {
+    method: "put",
+    path: "/api/Event/Update/:eventId",
+    alias: "putApiEventUpdateEventId",
+    requestFormat: "json",
+    parameters: [
+      {
+        name: "body",
+        type: "Body",
+        schema: EventUM,
+      },
+      {
+        name: "eventId",
+        type: "Path",
+        schema: z.string().uuid(),
+      },
+    ],
+    response: EventVM,
+  },
 ]);
 
-export const api = new Zodios(endpoints);
+export const api = new Zodios(endpoints, {
+  axiosConfig: {
+    baseURL: import.meta.env.VITE_API_BASE_URL
+  }
+});
 
 export function createApiClient(baseUrl: string, options?: ZodiosOptions) {
   return new Zodios(baseUrl, endpoints, options);
