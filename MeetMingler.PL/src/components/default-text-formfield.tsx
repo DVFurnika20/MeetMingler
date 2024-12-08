@@ -5,7 +5,7 @@ import {FieldValues, Path, UseFormReturn} from "react-hook-form";
 
 export interface DefaultTextFormFieldProps<TSchema extends FieldValues> {
     name: Path<TSchema>,
-    placeholder: string,
+    placeholder?: string,
     type?: HTMLInputTypeAttribute,
     form: UseFormReturn<TSchema>
 }
