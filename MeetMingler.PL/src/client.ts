@@ -10,29 +10,23 @@ const UserIM = z
     password: z.string().nullable(),
   })
   .partial();
-const UserVM = z
-  .object({
-    id: z.string().uuid(),
-    firstName: z.string().nullable(),
-    lastName: z.string().nullable(),
-    email: z.string().nullable(),
-    userName: z.string().nullable(),
-  })
-  .partial();
+const UserVM = z.object({
+  id: z.string().uuid(),
+  firstName: z.string().min(1),
+  lastName: z.string().min(1),
+  email: z.string().min(1),
+  userName: z.string().min(1),
+});
 const UserLoginIM = z.object({
   email: z.string().min(1),
   password: z.string().min(1),
 });
-const EventMetadataIM = z.object({
-  key: z.string().min(1),
-  value: z.string().min(1),
-});
-const EventIM = z.object({
+const EventDictionaryIM = z.object({
   title: z.string().min(1),
   description: z.string().min(1),
   startTime: z.string().datetime({ offset: true }),
   endTime: z.string().datetime({ offset: true }),
-  metadata: z.array(EventMetadataIM),
+  metadata: z.record(z.string()),
 });
 const EventMetadataVM = z.object({
   key: z.string().min(1),
@@ -43,10 +37,10 @@ const EventVM = z.object({
   description: z.string().min(1),
   startTime: z.string().datetime({ offset: true }),
   endTime: z.string().datetime({ offset: true }),
-  id: z.string().uuid().optional(),
-  creator: UserVM.optional(),
-  cancelled: z.boolean().optional(),
-  metadata: z.array(EventMetadataVM).nullish(),
+  id: z.string().uuid(),
+  creator: UserVM,
+  cancelled: z.boolean(),
+  metadata: z.array(EventMetadataVM),
 });
 const EventFilter = z.object({
   includeMetadataKeys: z.array(z.string()).nullish(),
@@ -56,6 +50,10 @@ const EventFilter = z.object({
 const EventVMBaseCollectionVM = z.object({
   items: z.array(EventVM),
   count: z.number().int(),
+});
+const EventMetadataIM = z.object({
+  key: z.string().min(1),
+  value: z.string().min(1),
 });
 const EventUM = z.object({
   title: z.string().min(1),
@@ -68,12 +66,12 @@ export const schemas = {
   UserIM,
   UserVM,
   UserLoginIM,
-  EventMetadataIM,
-  EventIM,
+  EventDictionaryIM,
   EventMetadataVM,
   EventVM,
   EventFilter,
   EventVMBaseCollectionVM,
+  EventMetadataIM,
   EventUM,
 };
 
@@ -148,7 +146,7 @@ const endpoints = makeApi([
       {
         name: "body",
         type: "Body",
-        schema: EventIM,
+        schema: EventDictionaryIM,
       },
     ],
     response: EventVM,
@@ -423,11 +421,7 @@ const endpoints = makeApi([
   },
 ]);
 
-export const api = new Zodios(endpoints, {
-  axiosConfig: {
-    baseURL: import.meta.env.VITE_API_BASE_URL
-  }
-});
+export const api = new Zodios(endpoints);
 
 export function createApiClient(baseUrl: string, options?: ZodiosOptions) {
   return new Zodios(baseUrl, endpoints, options);
