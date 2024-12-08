@@ -36,7 +36,6 @@ public interface IEventService : IGenericCreateService<EventVM, EventIM>,
     /// <returns>A collection of values related to the metadata key</returns>
     IQueryable<string> GetDistinctMetadataValuesAsync(string metadataKey, CancellationToken cf = default);
  
-    // TODO: add methods for updating single event title and description, start and end date
     /// <summary>
     /// Update the event title, description, start date, and end date.
     /// </summary>
@@ -55,8 +54,6 @@ public interface IEventService : IGenericCreateService<EventVM, EventIM>,
     /// <returns>A task representing the asynchronous operation</returns>
     Task<bool> SetCancelledAsync(Guid id, bool cancelled, CancellationToken cf = default);
     
-    // insert if no key is present for event
-    // update if key is present for event
     /// <summary>
     /// Add or update metadata for an event.
     /// </summary>

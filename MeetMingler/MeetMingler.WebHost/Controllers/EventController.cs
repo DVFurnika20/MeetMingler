@@ -85,7 +85,7 @@ public class EventController(IAuthService authService, ICurrentUser currentUser,
         return Ok(result);
     }
     
-    [HttpPost("{eventId:guid}/register")]
+    [HttpPost("{eventId:guid}")]
     public async Task<ActionResult> RegisterUserForEvent([FromRoute] Guid eventId, CancellationToken ct)
     {
         var result = await eventService.RegisterUserForEventAsync(eventId, ct);
@@ -97,7 +97,7 @@ public class EventController(IAuthService authService, ICurrentUser currentUser,
         return Ok();
     }
     
-    [HttpGet("dates")]
+    [HttpGet]
     public async Task<ActionResult<IEnumerable<DateTime>>> GetDates([FromQuery] DateTime startDateRange, [FromQuery] DateTime endDateRange, CancellationToken ct)
     {
         var result = await eventService.GetDatesAsync(startDateRange, endDateRange, ct);
@@ -140,6 +140,7 @@ public class EventController(IAuthService authService, ICurrentUser currentUser,
         return Ok();
     }
     
+    [HttpGet("{eventId:guid}")]
     public async Task<ActionResult<UserVM>> GetAttendees([FromRoute] Guid eventId,
         [FromQuery] PaginationOptions pagination, CancellationToken ct = default)
     {
@@ -151,7 +152,8 @@ public class EventController(IAuthService authService, ICurrentUser currentUser,
 
         return Ok(result);
     }
-
+    
+    [HttpGet]
     public async Task<ActionResult<EventVM>> GetSelfAttendance([FromQuery] PaginationOptions pagination,
         CancellationToken ct = default)
     {
