@@ -14,45 +14,34 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Toaster } from "@/components/ui/toaster";
 import { apiHooks } from "@/client-hooks";
+import { schemas } from "@/client";
+import { z } from "zod";
 import { useNavigate } from "@tanstack/react-router";
 
 export const Route = createRootRoute({
   component: RootComponent,
 });
 
-function useIsAuthenticated() {
-  const { error } = apiHooks.useGetApiAuthSelf();
-
-  return error == null;
-}
-
 function RootComponent() {
-  const isAuthenticated = useIsAuthenticated();
-  const loginMatch = useMatch({ from: "/login", shouldThrow: false });
-  const registerMatch = useMatch({ from: "/register", shouldThrow: false });
+  const { data: user, status } = apiHooks.useGetApiAuthSelf(undefined, {
+    retry: false,
+  });
   const navigate = useNavigate();
+  const isLoginPage = useMatch({ from: "/login", shouldThrow: false });
+  const isRegisterPage = useMatch({ from: "/register", shouldThrow: false });
 
   React.useEffect(() => {
-    // check if isAuthenticated is false and if page is not register or login with tanstack router
     (async () => {
-      if (
-        !isAuthenticated &&
-        (loginMatch === undefined || registerMatch === undefined)
-      ) {
+      if (status === "error" && !isLoginPage && !isRegisterPage) {
         await navigate({ to: "/login" });
-      } else if (
-        isAuthenticated &&
-        (loginMatch !== undefined || registerMatch !== undefined)
-      ) {
-        await navigate({ to: "/" });
       }
     })();
-  }, [isAuthenticated, loginMatch, registerMatch, navigate]);
+  }, [user, isLoginPage, isRegisterPage, navigate, status]);
 
   return (
     <React.Fragment>
       <div className="fixed bottom-4 left-4">
-        <AvatarDropdown />
+        {user ? <AvatarDropdown user={user} /> : <></>}
       </div>
       <div className="fixed bottom-4 right-4">
         <div className="flex space-x-2">
@@ -68,13 +57,17 @@ function RootComponent() {
   );
 }
 
-function AvatarDropdown() {
+function AvatarDropdown({ user }: { user: z.infer<typeof schemas.UserVM> }) {
+  const { mutate: logout } = apiHooks.usePostApiAuthLogout();
+
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <Button variant="link" size="icon">
           <Avatar>
-            <AvatarFallback>AM</AvatarFallback>
+            <AvatarFallback>
+              {user.firstName[0] + user.lastName[0]}
+            </AvatarFallback>
           </Avatar>
         </Button>
       </DropdownMenuTrigger>
@@ -82,16 +75,18 @@ function AvatarDropdown() {
         <DropdownMenuLabel className="px-2 py-1.5 text-sm font-normal">
           <div className="flex flex-col space-y-1">
             <p className="text-sm font-medium leading-none">
-              first name last name
+              {user.firstName + " " + user.lastName}
             </p>
             <p className="text-xs leading-none text-muted-foreground">
-              email@example.com
+              {user.email}
             </p>
           </div>
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
-        <DropdownMenuItem>Toggle theme</DropdownMenuItem>
-        <DropdownMenuItem>Change password</DropdownMenuItem>
+        <DropdownMenuItem>Change Password</DropdownMenuItem>
+        <DropdownMenuItem onClick={() => logout(undefined)}>
+          Logout
+        </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
   );

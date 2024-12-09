@@ -1,7 +1,6 @@
 import { schemas } from "@/client";
 import { apiHooks } from "@/client-hooks";
 import { DefaultTextFormField } from "@/components/default-text-formfield";
-import { useTheme } from "@/components/theme-provider";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -12,8 +11,7 @@ import {
 } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import clsx from "clsx";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import {
   FieldValues,
   FormProvider,
@@ -50,6 +48,7 @@ interface EventCreateFormProps {
 export interface DatePickerProps<TSchema extends FieldValues> {
   name: Path<TSchema>;
   form: UseFormReturn<TSchema>;
+  disabled: (date: Date) => boolean;
 }
 
 export function DatePicker<TSchema extends FieldValues>(
@@ -92,11 +91,9 @@ export function DatePicker<TSchema extends FieldValues>(
             <PopoverContent className="w-auto p-0" align="start">
               <Calendar
                 mode="single"
-                selected={field.value}
-                onSelect={field.onChange}
-                disabled={(date) =>
-                  date > new Date() || date < new Date("1900-01-01")
-                }
+                selected={new Date(field.value)}
+                onSelect={(date) => field.onChange(date?.toISOString())}
+                disabled={props.disabled}
                 initialFocus
               />
             </PopoverContent>
@@ -125,12 +122,20 @@ const LoginForm: React.FC<EventCreateFormProps> = (props) => {
         <DefaultTextFormField
           form={form}
           name="description"
-          type="password"
+          type="text"
           placeholder="i.e. 'sphinx of black quartz judge my vow'"
         />
         <div className="flex space-x-4">
-          <DatePicker form={form} name="startTime" />
-          <DatePicker form={form} name="endTime" />
+          <DatePicker
+            form={form}
+            name="startTime"
+            disabled={(date) => date < new Date("1970-01-01")}
+          />
+          <DatePicker
+            form={form}
+            name="endTime"
+            disabled={(date) => date < new Date("1970-01-01")}
+          />
         </div>
         <DefaultTextFormField
           form={form}

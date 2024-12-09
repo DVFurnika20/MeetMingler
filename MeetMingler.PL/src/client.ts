@@ -42,6 +42,17 @@ const EventVM = z.object({
   cancelled: z.boolean(),
   metadata: z.array(EventMetadataVM),
 });
+const EventExtendedVM = z.object({
+  title: z.string().min(1),
+  description: z.string().min(1),
+  startTime: z.string().datetime({ offset: true }),
+  endTime: z.string().datetime({ offset: true }),
+  id: z.string().uuid(),
+  creator: UserVM,
+  cancelled: z.boolean(),
+  metadata: z.array(EventMetadataVM),
+  attending: z.boolean(),
+});
 const EventFilter = z.object({
   includeMetadataKeys: z.array(z.string()).nullish(),
   metadataFilters: z.record(z.string()).nullish(),
@@ -69,6 +80,7 @@ export const schemas = {
   EventDictionaryIM,
   EventMetadataVM,
   EventVM,
+  EventExtendedVM,
   EventFilter,
   EventVMBaseCollectionVM,
   EventMetadataIM,
@@ -303,7 +315,7 @@ const endpoints = makeApi([
         schema: z.string().uuid(),
       },
     ],
-    response: EventVM,
+    response: EventExtendedVM,
   },
   {
     method: "get",
@@ -421,7 +433,12 @@ const endpoints = makeApi([
   },
 ]);
 
-export const api = new Zodios(endpoints);
+export const api = new Zodios(endpoints, {
+  axiosConfig: {
+    baseURL: import.meta.env.VITE_API_BASE_URL,
+    withCredentials: true,
+  },
+});
 
 export function createApiClient(baseUrl: string, options?: ZodiosOptions) {
   return new Zodios(baseUrl, endpoints, options);
