@@ -1,0 +1,54 @@
+services:
+  db:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    restart: unless-stopped
+    ports:
+      - 1433:1433
+    env_file: .env
+    volumes:
+      - data:/var/opt/mssql
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "/opt/mssql-tools18/bin/sqlcmd",
+          "-U",
+          "sa",
+          "-P",
+          "$MSSQL_SA_PASSWORD",
+          "-C",
+          "-Q",
+          '"SELECT 1"',
+        ]
+      interval: 10s
+  proxy_plus_static:
+    build:
+      context: MeetMingler.PL
+      dockerfile: Dockerfile
+      args:
+        SERVER_NAME: enoughcreativity.me
+        API_HOSTNAME: api
+        API_UPSTREAM_PORT: 8080
+    volumes:
+      - /etc/ssl/enoughcreativity.me.pem:/etc/ssl/enoughcreativity.me.pem:ro
+      - /etc/ssl/enoughcreativity.me.key:/etc/ssl/enoughcreativity.me.key:ro
+    restart: unless-stopped
+    depends_on:
+      - api
+    ports:
+      - "443:443"
+  api:
+    build:
+      context: MeetMingler
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    volumes:
+      - ./MeetMingler/MeetMingler.WebHost/appsettings.json:/App/appsettings.json:ro
+    ports:
+      - "8080:8080"
+
+volumes:
+  data:
