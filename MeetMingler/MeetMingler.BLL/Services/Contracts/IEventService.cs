@@ -15,7 +15,7 @@ public interface IEventService : IGenericCreateService<EventVM, EventIM>,
     /// <param name="id">The event's unique identifier</param>
     /// <param name="cf">Cancellation token</param>
     /// <returns>The view model of an event</returns>
-    Task<EventVM?> GetByIdAsync(Guid id, CancellationToken cf = default);
+    Task<EventExtendedVM?> GetByIdAsync(Guid id, CancellationToken cf = default);
 
     /// <summary>
     /// Retrieve all events created by a user

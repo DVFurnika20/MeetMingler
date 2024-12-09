@@ -5,6 +5,7 @@ using MeetMingler.DAL.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc.ModelBinding.Metadata;
 using Microsoft.EntityFrameworkCore;
+using WeatherStationManagement.Domain;
 
 namespace MeetMingler.WebHost;
 
@@ -16,7 +17,11 @@ public static class ServiceExtensions
         builder.Services
             .AddControllers(
                 opt => opt.ModelMetadataDetailsProviders.Add(new SystemTextJsonValidationMetadataProvider()))
-            .AddJsonOptions(opt => { opt.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter()); });
+            .AddJsonOptions(opt =>
+            {
+                opt.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
+                opt.JsonSerializerOptions.Converters.Add(new DateTimeConverter());
+            });
     }
 
     public static void AddDbContext(this WebApplicationBuilder builder)
@@ -60,7 +65,11 @@ public static class ServiceExtensions
             builder.Services.AddCors(options =>
             {
                 // ReSharper disable once VariableHidesOuterVariable
-                options.AddDefaultPolicy(builder => builder.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader());
+                options.AddDefaultPolicy(builder => builder
+                    .WithOrigins("http://localhost:5173", "http://localhost:5265")
+                    .AllowAnyMethod()
+                    .AllowAnyHeader()
+                    .AllowCredentials());
             });
         }
     }

@@ -39,7 +39,7 @@ public class EventController(IAuthService authService, ICurrentUser currentUser,
     }
 
     [HttpGet("{id:guid}")]
-    public async Task<ActionResult<EventVM>> GetById([FromRoute] Guid id, CancellationToken ct)
+    public async Task<ActionResult<EventExtendedVM>> GetById([FromRoute] Guid id, CancellationToken ct)
     {
         var result = await eventService.GetByIdAsync(id, ct);
         if (result == null)

@@ -31,7 +31,7 @@ public class EventService(IMapper mapper, ICurrentUser currentUser, ApplicationD
         return mappedEvent;
     }
 
-    public async Task<EventVM?> GetByIdAsync(Guid id, CancellationToken cf = default)
+    public async Task<EventExtendedVM?> GetByIdAsync(Guid id, CancellationToken cf = default)
     {
         // retrieve event by id
         var eventEntity = await context.Events
@@ -39,6 +39,9 @@ public class EventService(IMapper mapper, ICurrentUser currentUser, ApplicationD
             .Include(@event => @event.Metadata)
             .Include(@event => @event.Creator)
             .FirstOrDefaultAsync(e => e.Id == id, cf);
+        
+        var attending = await context.EventParticipants
+            .AnyAsync(ep => ep.EventId == id && ep.UserId == currentUser.User.Id, cf);
 
         // if event not found, return null
         if (eventEntity == null)
@@ -47,7 +50,8 @@ public class EventService(IMapper mapper, ICurrentUser currentUser, ApplicationD
         }
 
         // map to EventVM
-        var mappedEvent = mapper.Map<EventVM>(eventEntity);
+        var mappedEvent = mapper.Map<EventExtendedVM>(eventEntity);
+        mappedEvent.Attending = attending;
         mappedEvent.Metadata = eventEntity.Metadata.Select(mapper.Map<EventMetadataVM>);
 
         // return event view model
