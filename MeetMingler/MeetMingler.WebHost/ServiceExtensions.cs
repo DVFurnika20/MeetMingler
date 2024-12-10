@@ -60,18 +60,18 @@ public static class ServiceExtensions
 
     public static void AddCors(this WebApplicationBuilder builder)
     {
-        if (builder.Environment.IsDevelopment())
+        var origins = builder.Configuration.GetValue<string[]>("AllowedOrigins");
+        
+        builder.Services.AddCors(options =>
         {
-            builder.Services.AddCors(options =>
+            // ReSharper disable once VariableHidesOuterVariable
+            options.AddDefaultPolicy(builder =>
             {
-                // ReSharper disable once VariableHidesOuterVariable
-                options.AddDefaultPolicy(builder => builder
-                    .WithOrigins("http://localhost:5173", "http://localhost:5265")
-                    .AllowAnyMethod()
-                    .AllowAnyHeader()
-                    .AllowCredentials());
+                if (origins != null)
+                    builder
+                        .WithOrigins(origins);
             });
-        }
+        });
     }
 
     public static void AddAutoMapper(this WebApplicationBuilder builder)
