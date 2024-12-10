@@ -60,7 +60,7 @@ public static class ServiceExtensions
 
     public static void AddCors(this WebApplicationBuilder builder)
     {
-        var origins = builder.Configuration.GetValue<string[]>("AllowedOrigins");
+        var origins = builder.Configuration.GetSection("AllowedOrigins").Get<string[]>();
         
         builder.Services.AddCors(options =>
         {
