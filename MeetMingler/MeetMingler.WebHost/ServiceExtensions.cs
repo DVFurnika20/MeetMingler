@@ -69,7 +69,10 @@ public static class ServiceExtensions
             {
                 if (origins != null)
                     builder
-                        .WithOrigins(origins);
+                        .WithOrigins(origins)
+                        .AllowAnyMethod()
+                        .AllowAnyHeader()
+                        .AllowCredentials();
             });
         });
     }
