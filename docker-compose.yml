@@ -21,6 +21,7 @@ services:
           '"SELECT 1"',
         ]
       interval: 10s
+
   proxy_plus_static:
     build:
       context: MeetMingler.PL
@@ -33,10 +34,28 @@ services:
       - /etc/ssl/enoughcreativity.me.pem:/etc/ssl/enoughcreativity.me.pem:ro
       - /etc/ssl/enoughcreativity.me.key:/etc/ssl/enoughcreativity.me.key:ro
     restart: unless-stopped
+    network_mode: service:gluetun
     depends_on:
       - api
+
+  gluetun:
+    image: qmcgaw/gluetun:latest
+    restart: unless-stopped
+    cap_add:
+      - NET_ADMIN
+    devices:
+      - /dev/net/tun:/dev/net/tun
     ports:
       - "443:443"
+    volumes:
+      - /etc/wireguard/meetmingler-server.conf:/gluetun/wireguard/wg0.conf:ro
+    links:
+      - api
+    environment:
+      VPN_SERVICE_PROVIDER: custom
+      VPN_TYPE: wireguard
+      FIREWALL_VPN_INPUT_PORTS: 443
+
   api:
     build:
       context: MeetMingler
@@ -46,9 +65,11 @@ services:
       db:
         condition: service_healthy
     volumes:
+      - dpkeys:/root/.aspnet/DataProtection-Keys
       - ./MeetMingler/MeetMingler.WebHost/appsettings.json:/App/appsettings.json:ro
     ports:
       - "8080:8080"
 
 volumes:
+  dpkeys:
   data:

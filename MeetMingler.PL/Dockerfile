@@ -7,10 +7,8 @@ ARG API_UPSTREAM_PORT
 WORKDIR /app
 COPY . .
 
-RUN export VITE_API_BASE_URL=https://meetminglerapi.${SERVER_NAME}
-
 RUN bun install
-RUN bun run build
+RUN VITE_API_BASE_URL=https://meetminglerapi.${SERVER_NAME} bun run build
 
 
 
@@ -29,14 +27,19 @@ EXPOSE 443
 
 RUN echo -ne ""\
     "server {\n"\
-    "  listen 443 default_server ssl;\n"\
+    "  listen 443 ssl;\n"\
     "  ssl_certificate /etc/ssl/${SERVER_NAME}.pem;\n"\
     "  ssl_certificate_key /etc/ssl/${SERVER_NAME}.key;\n"\
     "  server_name meetmingler.${SERVER_NAME};\n"\
+    "\n"\
     "  root /www/data;\n"\
+    "  index index.html;"\
     "\n"\
     "  location / {\n"\
+    "    try_files \$uri /index.html;\n"\
     "  }\n"\
+    "\n"\
+    "  error_page 404 /index.html;"\
     "}\n"\
     "\n"\
     "server {\n"\
